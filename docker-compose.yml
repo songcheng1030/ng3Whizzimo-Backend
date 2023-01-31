@@ -1,0 +1,11 @@
+# docker-compose.yml
+version: "3"
+services:
+  app:
+    build: .
+    volumes:
+      - ./app:/usr/src/app/app
+    command: yarn config:docker:dev:local
+    ports:
+      - "8084:8084"
+      - "9229:9229"

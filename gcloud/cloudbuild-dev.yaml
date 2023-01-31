@@ -1,0 +1,81 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: copy_gcloud_key_file_storage
+    args:
+      - cp
+      - gs://whizzimo-env-files/WhizzimoDevGCloudKey.json
+      - WhizzimoDevGCloudKey.json
+
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: copy_env_file
+    args:
+      - cp
+      - gs://whizzimo-env-files/dev.env
+      - dev.env
+
+  # Build PRODUCTION image
+  - name: gcr.io/cloud-builders/docker
+    id: build
+    args:
+      - build
+      - -t=us-central1-docker.pkg.dev/whizzimo-dev/whizzimo-dev/dev:$SHORT_SHA
+      - -t=us-central1-docker.pkg.dev/whizzimo-dev/whizzimo-dev/dev:latest
+      - .
+  # Docker Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - push
+      - us-central1-docker.pkg.dev/whizzimo-dev/whizzimo-dev/dev:$SHORT_SHA
+  
+  # Docker Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - push
+      - us-central1-docker.pkg.dev/whizzimo-dev/whizzimo-dev/dev:latest
+
+  # Create the new instance template
+  - name: gcr.io/cloud-builders/gcloud
+    id: create-instance-template
+    args:
+      - compute
+      - instance-templates
+      - create-with-container
+      - my-template-dev-$SHORT_SHA
+      - --custom-cpu=1
+      - --custom-memory=2GB
+      - --boot-disk-size=20GB
+      - --region=us-central1
+      - --subnet=default
+      - --tags=allow-hc-and-proxy,allow-ssh
+      - --container-image
+      - us-central1-docker.pkg.dev/whizzimo-dev/whizzimo-dev/dev:$SHORT_SHA
+
+  # Make sure that our MIG is stable before update
+  - name: gcr.io/cloud-builders/gcloud
+    id: wait-until
+    args:
+      - compute
+      - instance-groups
+      - managed
+      - wait-until
+      - instance-group-1
+      - --stable
+      - --zone=us-central1-a
+
+  # Update the managed instance group
+  - name: gcr.io/cloud-builders/gcloud
+    id: update-instance-group
+    args:
+      - compute
+      - instance-groups
+      - managed
+      - rolling-action
+      - start-update
+      - instance-group-1
+      - --version
+      - template=my-template-dev-$SHORT_SHA
+      - --zone=us-central1-a
+      - --max-unavailable=0
+timeout: 20m
+options:
+ logging: CLOUD_LOGGING_ONLY

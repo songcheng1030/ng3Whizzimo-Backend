@@ -1,0 +1,81 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+/out-tsc
+/app-builds
+/release
+main.js
+src/**/*.js
+*.js.map
+
+# dependencies
+/node_modules
+/server/node_modules
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# misc
+/.sass-cache
+/connect.lock
+/coverage
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+package-lock.json
+
+# e2e
+/e2e/*.js
+!/e2e/protractor.conf.js
+/e2e/*.map
+
+# System Files
+.DS_Store
+Thumbs.db
+
+#config files
+config.ts
+config.js
+WhizzimoDevGCloudKey.json
+WhizzimoProdGCloudKey.json
+.rnd
+cert.pem
+key.pem
+keytmp.pem
+server.csr
+
+#whizimo seeds
+whizzimoseed.gz
+whizzimoprodseed.gz
+whizzimodevFirebaseData.json
+whizzimoprodFirebaseData.json
+config-prod.ts
+config-prod.js
+migrationseed.gz
+.env
+/uploads/*
+app/uploads/*
+scripts/uploads/*
+scripts/*.json
+
+environments/localprod.env
+environments/local.env
+environments/prod.env
+environments/dev.env
+environments/localdev.env

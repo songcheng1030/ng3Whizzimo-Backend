@@ -1,0 +1,83 @@
+steps:
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: copy_gcloud_key_file_storage
+    args:
+      - cp
+      - gs://whizzimo-alt-env-files/WhizzimoProdGCloudKey.json
+      - WhizzimoProdGCloudKey.json
+
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: copy_env_file
+    args:
+      - cp
+      - gs://whizzimo-alt-env-files/prod.env
+      - prod.env
+
+  # Build PRODUCTION image
+  - name: gcr.io/cloud-builders/docker
+    id: build
+    args:
+      - build
+      - -f
+      - Dockerfile.alt
+      - -t=us-central1-docker.pkg.dev/whizzimo-prod/whizzimo-alt/alt:$SHORT_SHA
+      - -t=us-central1-docker.pkg.dev/whizzimo-prod/whizzimo-alt/alt:latest
+      - .
+  # Docker Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - push
+      - us-central1-docker.pkg.dev/whizzimo-prod/whizzimo-alt/alt:$SHORT_SHA
+  
+  # Docker Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - push
+      - us-central1-docker.pkg.dev/whizzimo-prod/whizzimo-alt/alt:latest
+
+  # Create the new instance template
+  - name: gcr.io/cloud-builders/gcloud
+    id: create-instance-template
+    args:
+      - compute
+      - instance-templates
+      - create-with-container
+      - my-template-alt-$SHORT_SHA
+      - --custom-cpu=1
+      - --custom-memory=2GB
+      - --boot-disk-size=20GB
+      - --region=us-central1
+      - --subnet=default
+      - --tags=allow-hc-and-proxy,allow-ssh
+      - --container-image
+      - us-central1-docker.pkg.dev/whizzimo-prod/whizzimo-alt/alt:$SHORT_SHA
+
+  # Make sure that our MIG is stable before update
+  - name: gcr.io/cloud-builders/gcloud
+    id: wait-until
+    args:
+      - compute
+      - instance-groups
+      - managed
+      - wait-until
+      - instance-group-alt
+      - --stable
+      - --zone=us-central1-a
+
+  # Update the managed instance group
+  - name: gcr.io/cloud-builders/gcloud
+    id: update-instance-group
+    args:
+      - compute
+      - instance-groups
+      - managed
+      - rolling-action
+      - start-update
+      - instance-group-alt
+      - --version
+      - template=my-template-alt-$SHORT_SHA
+      - --zone=us-central1-a
+      - --max-unavailable=0
+timeout: 20m
+options:
+ logging: CLOUD_LOGGING_ONLY

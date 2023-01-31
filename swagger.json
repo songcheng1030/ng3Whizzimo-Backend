@@ -1,0 +1,103 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Simple API overview",
+    "version": "v2"
+  },
+  "paths": {
+    "/registration": {
+      "post": {
+        "operationId": "postRegistration",
+        "summary": "Creates New User",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "firstname",
+            "in": "body",
+            "description": "First Name",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "lastname",
+            "in": "body",
+            "description": "Last Name",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "email",
+            "in": "body",
+            "description": "email address",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "password",
+            "in": "body",
+            "description": "Password must be at least 8 characters in length.",
+            "type": "password",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "plan",
+            "in": "body",
+            "description": "Plan Type User Will be Using",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "promo",
+            "in": "body",
+            "description": "Promotional  Code for discounts",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "role",
+            "in": "body",
+            "description": "Role of Teacher or Student",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "code",
+            "in": "body",
+            "description": "Method user used to find out about Whizzimo",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          },
+          {
+            "name": "codeDesc",
+            "in": "body",
+            "description": "More Info about method user used to find out about Whizzimo",
+            "type": "string",
+            "required": true,
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 300 response",
+            "examples": {
+              "application/json": "{\n  \"data\": {\n   \"authId\": \"\",\n   \"whizzimoId\": \"\",\n   \"stripeId\": \"\",\n  }\n}"
+            }
+          }
+        }
+      }
+    }
+  },
+  "consumes": [
+    "application/json"
+  ]
+}
